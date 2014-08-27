@@ -25,7 +25,7 @@ Clone the code from [https://github.com/druid-io/whirr](https://github.com/druid
     git checkout trunk
     mvn clean install -Dmaven.test.failure.ignore=true
 
-In order to run the test below, you'll also need two files that available only from a [standard install of Druid](http://druid.io/downloads.html) or the [Druid repo](https://github.com/metamx/druid/tree/master/examples/bin/examples):
+In order to run the test below, you'll also need two files available only from a [standard install of Druid](http://druid.io/downloads.html) or the [Druid repo](https://github.com/metamx/druid/tree/master/examples/bin/examples):
 
 * `druid/examples/bin/examples/wikipedia/wikipedia_realtime.spec`
 * `druid/examples/bin/examples/indexing/wikipedia_realtime_task.json`
@@ -35,10 +35,10 @@ In order to run the test below, you'll also need two files that available only f
 The Whirr recipe for Druid is the configuration file `$WHIRR_HOME/recipies/druid.properties`. You can edit this file to suit your needs; it is annotated and self-explanatory. Here are some hints about that file:
 
 * Set `whirr.location-id` to a specific AWS region if desired. If this is left blank, a region is chosen for you. The default value is `us-east-1`.
-* You can choose the hardware used with `whirr.hardware-id` to a specific instance type (e.g., m1.large). By default druid.properties, m3.2xlarge (broker, historical, middle manager), m1.xlarge (coordinator, overlord), and m1.small (zookeeper, mysql) are used.
+* You can choose the hardware used with `whirr.hardware-id` to a specific instance type (e.g., m1.large). By default, `druid.properties` specifies m3.2xlarge, but this can be overridden for specific nodes using `whirr.templates.<node-type>.hardware-id` (for example, `whirr.templates.druid-coordinator.hardware-id`). See `druid.properties` for examples.  
 * If you don't choose an image via `whirr.image-id` (image must be compatible with hardware), you'll get plain vanilla Linux. Default druid.properties uses ami-018c9568 (Ubuntu 12.04).
 * SSH keys (not password protected) must exist for the local user. If they are in the default locations, `${sys:user.home}/.ssh/id_rsa` and `${sys:user.home}/.ssh/id_rsa.pub`, Whirr will find them. Otherwise, you'll have to specify them with `whirr.private-key-file` and `whirr.public-key-file`.
-* Two Druid cluster templates (see `whirr.instance-templates`) are provided: a small cluster running on a single EC2 instance, and a larger cluster running on multiple instances.
+* The Druid cluster template (see `whirr.instance-templates`) provides a cluster running on multiple instances. You can edit the existing template or create a new one (comment out unused templates).
 * You must specify the path to an S3 bucket. Otherwise the cluster won't be able to process tasks.
 * To successfully submit the test task below, you'll need to specify the location of the `wikipedia_realtime.spec` in the property `whirr.druid.realtime.spec.path`.
 * Specify Druid version only if [Druid extenions](Modules.html) are being used.
@@ -90,6 +90,6 @@ Issuing this request should return a task ID.
 
 To check the state of the overlord, open up your browser and go to `#{OVERLORD_PUBLIC_IP_ADDR}:#{PORT}/console.html`.
 
-Next, go to `#{COORDINATOR_PUBLIC_IP_ADDR}:#{PORT}`. Click "View Information about the Cluster"->"Full Cluster View." You should now see the information about servers and segments. If the cluster runs correctly, Segment dimensions and Segment binaryVersion fields should be filled up. Allow few minutes for the segments to be processed.
+Next, go to `#{COORDINATOR_PUBLIC_IP_ADDR}:#{PORT}` (port 8080 by default). Click "View Information about the Cluster"->"Full Cluster View." You should now see the information about servers and segments. If the cluster runs correctly, Segment dimensions and Segment binaryVersion fields should be filled up. Allow few minutes for the segments to be processed.
 
 Now you should be able to query the data using broker's public IP address.
